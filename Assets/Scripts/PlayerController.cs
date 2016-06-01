@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections;
-using UnityStandardAssets.CrossPlatformInput;
 
 public class PlayerController : MonoBehaviour {
 
@@ -21,7 +20,7 @@ public class PlayerController : MonoBehaviour {
 	}
 	
     void FixedUpdate() {
-        Vector2 Dir = new Vector2(CrossPlatformInputManager.GetAxis("Horizontal"), CrossPlatformInputManager.GetAxis("Vertical"));
+        Vector2 Dir = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
 
         if (dashing) {
             if (dashTimestamp + dashTime > Time.time) {
@@ -46,7 +45,7 @@ public class PlayerController : MonoBehaviour {
     private void doDash() {
         if (!dashing && dashTimestamp + dashCooldown <= Time.time) {
             dashing = true;
-            dashDir = new Vector2(CrossPlatformInputManager.GetAxis("Horizontal"), CrossPlatformInputManager.GetAxis("Vertical"));
+            dashDir = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
             dashTimestamp = Time.time;
         }
     }
