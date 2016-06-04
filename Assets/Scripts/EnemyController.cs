@@ -6,44 +6,124 @@ public class EnemyController : MonoBehaviour {
     private Rigidbody2D rb;
 
     public float moveSpeed = 50f;
+    public float turningSpeed = 2f;
+
+    public float dashWindupTime;
     public float dashTime;
     public float dashCooldown;
     public float dashSpeed = 50f;
 
-    private bool dashing = false;
-    public bool isDashing {
-        get {
-            return dashing;
-        }
-        set {}
-    }
+    public float attackDistance;
+
+    private bool isDashing = false;
+
     private Vector2 dashDir;
     private float dashTimestamp;
 
+    private Quaternion forwardDirection;
+
+    private states currentState = states.Chase;
+    public states state {
+        get {
+            return currentState;
+        }
+    }
+
+    public enum states {
+        Windup,
+        Dash,
+        Chase
+    }
+    
     // Use this for initialization
     void Awake() {
         rb = this.GetComponent<Rigidbody2D>();
     }
-    
-    void FixedUpdate() {
-        if(Input.GetKey(KeyCode.L)) { 
-            Vector2 Dir = new Vector2(1, 0);
-            rb.AddForce(Dir * 20);
+
+    public void Reset() {
+        //reset position
+        //reset variables
+
+        Vector2 playerPos = GameManager.player.transform.position;
+        Vector2 forwardDirection = (playerPos - (Vector2)transform.position).normalized;
+    }
+
+    void Update() {
+        Vector2 playerPos = GameManager.player.transform.position;
+
+        forwardDirection = Quaternion.Slerp(
+                                forwardDirection,
+                                Quaternion.LookRotation(playerPos - (Vector2)transform.position), turningSpeed * Time.deltaTime
+                               );
+
+
+
+        switch (currentState) {
+            case states.Windup:
+                if (dashTimestamp + dashWindupTime <= Time.time) {
+                    DoDash();
+                }
+                break;
+            case states.Dash:
+                if (dashTimestamp + dashTime <= Time.time) {
+                    currentState = states.Chase;
+                }
+                break;
+            case states.Chase:
+                float distance = Vector2.Distance(playerPos, (Vector2)transform.position);
+                if (distance <= attackDistance) {
+                    DoAttack();
+                }
+                break;
         }
+        
     }
 
     // Update is called once per frame
-    void Update () {
-
+    void FixedUpdate() {
+        switch(currentState) {
+            case states.Windup:
+                windingup();
+                break;
+            case states.Dash:
+                dashing();
+                break;
+            case states.Chase:
+                chasing();
+                break;
+        }
 	}
 
-    public void reset() {
-        //reset position
-        //reset variables
+    private void windingup() {
+        
     }
 
-    public void killEnemy() {
-        GameManager.onEnemyKilled();
+    private void dashing() {
+
+    }
+
+    private void chasing() {
+        Vector2 Dir = forwardDirection * Vector3.forward;
+        rb.AddForce((Vector2) Dir.normalized * moveSpeed);
+    }
+
+    private void DoAttack() {
+        if (currentState == states.Chase) { // && dashTimestamp + dashCooldown <= Time.time
+            currentState = states.Windup;
+            dashTimestamp = Time.time;
+        }
+    }
+
+    private void DoDash() {
+        if(currentState == states.Windup) {
+            currentState = states.Dash;
+            Vector2 Dir = forwardDirection * Vector3.forward;
+            rb.velocity = dashSpeed * (Dir.normalized);
+        }
+    }
+
+    public void KillEnemy() {
+        GameManager.OnEnemyKilled();
         gameObject.SetActive(false);
     }
 }

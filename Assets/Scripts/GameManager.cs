@@ -11,6 +11,8 @@ public class GameManager : MonoBehaviour {
     public GameObject enemy;
     private ObjectPooler enemyPooler;
 
+    public static GameObject player;
+
     private static int score;
     private static int combo;
 
@@ -26,18 +28,18 @@ public class GameManager : MonoBehaviour {
         enemyPooler = Instantiate(ObjectPooler) as ObjectPooler;
         enemyPooler.initialize(enemy, 10, true);
 
-        StartCoroutine(spawnEnemies());
+        StartCoroutine(SpawnEnemies());
     }
 
-    IEnumerator spawnEnemies() {
+    IEnumerator SpawnEnemies() {
         while (true) {
-            spawnEnemy();
+            SpawnEnemy();
 
             yield return new WaitForSeconds(2);
         }
     }
 
-    public void spawnEnemy() {
+    public void SpawnEnemy() {
         if (enemyPooler) {
             GameObject newEnemy = enemyPooler.getObject();
             if (newEnemy) {
@@ -52,7 +54,7 @@ public class GameManager : MonoBehaviour {
 
     }
 
-    public static void onEnemyKilled() {
+    public static void OnEnemyKilled() {
         score += 10;
         combo++;
     }

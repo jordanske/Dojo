@@ -10,9 +10,13 @@ public class PlayerController : MonoBehaviour {
     public float dashCooldown;
     public float dashSpeed = 50f;
 
-    private bool dashing = false;
+    private bool isDashing = false;
     private Vector2 dashDir;
     private float dashTimestamp;
+
+    void Awake() {
+        GameManager.player = gameObject;
+    }
 
     void Start () {
         rb = this.GetComponent<Rigidbody2D>();
@@ -21,12 +25,12 @@ public class PlayerController : MonoBehaviour {
     void FixedUpdate() {
         Vector2 Dir = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
 
-        if (dashing) {
+        if (isDashing) {
             if (dashTimestamp + dashTime > Time.time) {
                 //rb.AddForce(dashDir * dashSpeed, ForceMode2D.Impulse);
                 //rb.velocity = dashSpeed * (rb.velocity.normalized);
             } else {
-                dashing = false;
+                isDashing = false;
             }
         } else {
             //if (dashTimestamp + dashCooldown <= Time.time) {
@@ -38,7 +42,7 @@ public class PlayerController : MonoBehaviour {
 	void Update () {
         if (Input.GetKey(KeyCode.E)) {
             if (dashTimestamp + dashCooldown <= Time.time) {
-                doDash();
+                DoDash();
             }
         }
     }
@@ -48,30 +52,39 @@ public class PlayerController : MonoBehaviour {
     }
 
     void OnTriggerEnter2D(Collider2D other) {
+        OnTrigger(other);
+    }
+
+    void OnTriggerExit2D(Collider2D other) {
+        OnTrigger(other);
+    }
+
+    private void OnTrigger(Collider2D other) {
         GameObject enemy = other.transform.parent.gameObject;
         EnemyController ec = enemy.GetComponent<EnemyController>();
-        
-        if (dashing && !ec.isDashing) {
+
+        var enemyIsDashing = (ec.state == EnemyController.states.Dash);
+
+        if (isDashing && !enemyIsDashing) {
             //Kill enemy!
-            ec.killEnemy();
-        } else if(!dashing && ec.isDashing) {
+            ec.KillEnemy();
+        } else if (!isDashing && enemyIsDashing) {
             //Kill player!
-            killPlayer();
-        } else if(dashing && ec.isDashing) {
+            KillPlayer();
+        } else if (isDashing && enemyIsDashing) {
             //Kill depends of strike angle?
         } else {
             //Nothing happens, right?..
         }
-
     }
 
-    public void killPlayer() {
+    public void KillPlayer() {
         //Game over
     }
 
-    private void doDash() {
-        if (!dashing && dashTimestamp + dashCooldown <= Time.time) {
-            dashing = true;
+    private void DoDash() {
+        if (!isDashing && dashTimestamp + dashCooldown <= Time.time) {
+            isDashing = true;
             dashDir = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
             dashTimestamp = Time.time;
 
