@@ -14,9 +14,7 @@ public class EnemyController : MonoBehaviour {
     public float dashSpeed = 50f;
 
     public float attackDistance;
-
-    private bool isDashing = false;
-
+    
     private Vector2 dashDir;
     private float dashTimestamp;
 
@@ -40,9 +38,11 @@ public class EnemyController : MonoBehaviour {
         rb = this.GetComponent<Rigidbody2D>();
     }
 
-    public void Reset() {
-        //reset position
-        //reset variables
+    public void Reset(float x, float y) {
+        transform.position = new Vector2(x, y);
+
+        currentState = states.Chase;
+
 
         Vector2 playerPos = GameManager.player.transform.position;
         Vector2 forwardDirection = (playerPos - (Vector2)transform.position).normalized;
