@@ -126,4 +126,19 @@ public class EnemyController : MonoBehaviour {
         GameManager.OnEnemyKilled();
         gameObject.SetActive(false);
     }
+    
+    void OnTriggerStay2D(Collider2D other) {
+        if(other.tag == "Enemy") {
+            EnemyController ec = other.GetComponent<EnemyController>();
+
+            if(currentState != states.Dash) { 
+                if(ec.state == states.Chase) {
+                    
+                    Vector2 Dir = ((Vector2)other.transform.position - (Vector2)transform.position).normalized;
+                    other.GetComponent<Rigidbody2D>().AddForce((Vector2)Dir.normalized * moveSpeed);
+                }
+            }
+
+        }
+    }
 }

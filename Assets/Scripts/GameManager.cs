@@ -56,7 +56,8 @@ public class GameManager : MonoBehaviour {
 
     IEnumerator SpawnEnemies() {
         while (true) {
-            if(enemiesAlive < maxEnemies) {
+            
+            if (enemiesAlive < maxEnemies) {
                 SpawnEnemy();
             }
             
