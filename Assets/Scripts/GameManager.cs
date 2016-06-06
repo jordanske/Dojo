@@ -28,7 +28,12 @@ public class GameManager : MonoBehaviour {
     private static int enemiesAlive;
 
     private float[] cameraBounds;
-    
+
+    private BoxCollider2D topWall;
+    private BoxCollider2D bottomWall;
+    private BoxCollider2D leftWall;
+    private BoxCollider2D rightWall;
+
     void Awake() {
         current = this;
     }
@@ -48,10 +53,33 @@ public class GameManager : MonoBehaviour {
         cameraBounds[2] = 0 - (mainCam.ScreenToWorldPoint(new Vector3(0f, Screen.height, 0f)).y);
         cameraBounds[3] = mainCam.ScreenToWorldPoint(new Vector3(0f, Screen.height, 0f)).y;
 
+        setupWalls();
+
         enemyPooler = Instantiate(ObjectPooler) as ObjectPooler;
         enemyPooler.initialize(enemy, 10, true);
 
         StartCoroutine(SpawnEnemies());
+    }
+
+    private void setupWalls() {
+        Camera mainCam = Camera.main;
+
+        topWall = gameObject.AddComponent<BoxCollider2D>();
+        bottomWall = gameObject.AddComponent<BoxCollider2D>();
+        leftWall = gameObject.AddComponent<BoxCollider2D>();
+        rightWall = gameObject.AddComponent<BoxCollider2D>();
+        
+        topWall.size = new Vector2(cameraBounds[1] * 2.5f, 1f);
+        topWall.offset = new Vector2(0f, cameraBounds[3] + 0.5f);
+
+        bottomWall.size = new Vector2(cameraBounds[1] * 2.5f, 1f);
+        bottomWall.offset = new Vector2(0f, cameraBounds[2] - 0.5f);
+
+        leftWall.size = new Vector2(1f, cameraBounds[3] * 2.5f); ;
+        leftWall.offset = new Vector2(cameraBounds[0] - 0.5f, 0f);
+
+        rightWall.size = new Vector2(1f, cameraBounds[3] * 2.5f);
+        rightWall.offset = new Vector2(cameraBounds[1] + 0.5f, 0f);
     }
 
     IEnumerator SpawnEnemies() {
